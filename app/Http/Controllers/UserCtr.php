@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Fortify\PasswordValidationRules;
 use App\Rules\ChecarDocumento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -42,6 +43,20 @@ class UserCtr extends Controller
      */
     public function store(Request $request)
     {
+
+        $validarDoc = new ChecarDocumento();
+
+        $request['tipo_conta'] = $validarDoc->validarCPF($request['documento']) ? 'usuario' : 'lojista';
+        $request['documento'] = preg_replace('/[^0-9]/', '', (string) $request['documento']);
+
+        $messages = [
+            "nome_cimpleto.required" => "Informe seu Nome Completo.",
+            "email.unique" => "Este e-mail já está cadastrado.",
+            "email.email" => "Formato de e-mail incorreto.",
+            "documento.required" => "O Campo documento é Obrigatório",
+            "documento.unique" => "Já existe cadastro com este Documento.",
+        ];
+
         Validator::make($request->all(), [
             'nome_completo' => ['required', 'string', 'max:255'],
             'email' => [
@@ -54,14 +69,10 @@ class UserCtr extends Controller
             'password' => $this->passwordRules(),
             'documento' => [
                 'required',
-                Rule::unique(User::class),
+                Rule::unique(User::class, "documento"),
                 new ChecarDocumento
             ]
-        ])->validate();
-
-        $validarDoc = new ChecarDocumento();
-
-        $request['tipo_conta'] = $validarDoc->validarCPF($request['documento']) ? 'usuario' : 'lojista';
+        ], $messages)->validate();
 
         return User::create([
             'nome_completo' => $request['nome_completo'],
