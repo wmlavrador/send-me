@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
+use \App\Http\Controllers\UserCtr;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,12 +19,12 @@ Route::get('/', function () {
     return view('welcome');
 })->name("home");
 
-Route::get("/autenticar", function (){
+Route::get("/login", function (){
     return view("painel.login");
 })->name("login.index");
 
-Route::post("/user/create", [\App\Http\Controllers\UserCtr::class, 'store']);
+Route::post("/user/create", [UserCtr::class, 'store']);
 
-Route::prefix("admin")->group(function(){
+Route::middleware("auth:sanctum")->prefix("admin")->group(function(){
 
 });
