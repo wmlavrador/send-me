@@ -17,14 +17,14 @@ use \App\Http\Controllers\UserCtr;
 
 Route::get('/', function () {
     return view('welcome');
-})->name("home");
+})->name("welcome");
 
 Route::get("/login", function (){
     return view("painel.login");
-})->name("login.index");
-
-Route::post("/user/create", [UserCtr::class, 'store']);
+})->name("login");
 
 Route::middleware("auth:sanctum")->prefix("admin")->group(function(){
-
+    Route::get("/home", function(){
+        return view("painel.home");
+    })->name("admin.home");
 });

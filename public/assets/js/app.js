@@ -96,6 +96,48 @@ $("#formCadastro").on("submit", function(event){
     if (form.checkValidity())
     {
 
+        var docCpf = $("#formCadastro #documento_cpf").val();
+        var docCnpj = $("#formCadastro #documento_cnpj").val();
+        var documento = "";
+
+        if(docCpf == ""){
+            documento = docCnpj;
+        }
+        else {
+            documento = docCpf;
+        }
+
+        var dados = {
+          nome_completo: $("#formCadastro #nome_completo").val(),
+          email: $("#formCadastro #email").val(),
+          password: $("#formCadastro #password").val(),
+          password_confirmation: $("#formCadastro #password").val(),
+          documento: documento,
+        };
+
+        $.post("/api/user/create", dados).then(function(respoonse){
+            setTimeout(function(){
+                window.location = "/admin/home";
+            }, 2000)
+        }).fail(function(response){
+            $(".loading-modal").hide();
+
+            $erros = "";
+            $.each(response.responseJSON.errors, function(ind, erro){
+                $.each(erro, function(ind, message){
+                    $erros += `
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                          `+message+`
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                    `;
+                });
+            });
+
+            $("#show-erros-form").html($erros);
+        });
     }
 
     $(this).addClass('was-validated');
