@@ -14,19 +14,20 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="/assets/css/app.css" rel="stylesheet" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body id="page-top">
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
     <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="#page-top">My-Transfer</a>
+        <a class="navbar-brand js-scroll-trigger" href="#page-top">Send-me</a>
         <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             Menu
             <i class="fas fa-bars"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#portfolio">Entrar</a></li>
+                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{{ route("login.index") }}">Entrar</a></li>
                 <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#about">Criar Conta</a></li>
             </ul>
         </div>
@@ -132,12 +133,13 @@
         <!-- Contact Section Form-->
         <div class="row">
             <div class="col-lg-8 mx-auto">
+                <div id="show-erros-form"></div>
                 <form novalidate id="formCadastro">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="">Nome completo</label>
-                                <input type="text" required id="nome-completo" class="form-control">
+                                <input type="text" required id="nome_completo" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -172,7 +174,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="">Senha</label>
-                                <input type="password" required class="form-control">
+                                <input type="password" id="password" required class="form-control">
                             </div>
                         </div>
                     </div>
@@ -195,9 +197,14 @@
 <!-- Bootstrap core JS-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Third party plugin JS-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+</script>
 <script src="/assets/js/app.js"></script>
 
 <script type="text/javascript">
