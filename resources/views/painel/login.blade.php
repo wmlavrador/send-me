@@ -24,6 +24,7 @@
 
             <!-- Login Form -->
             <form>
+                @csrf
                 <input type="text" id="email" class="fadeIn second" name="email" placeholder="E-mail">
                 <input type="text" id="senha" class="fadeIn third" name="senha" placeholder="Senha">
                 <input type="submit" class="fadeIn fourth" value="Entrar">

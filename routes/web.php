@@ -16,11 +16,13 @@ use Illuminate\Support\Facades\Http;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name("home");
 
-Route::get("/login", function (){
+Route::get("/autenticar", function (){
     return view("painel.login");
 })->name("login.index");
+
+Route::post("/user/create", [\App\Http\Controllers\UserCtr::class, 'store']);
 
 Route::prefix("admin")->group(function(){
 
