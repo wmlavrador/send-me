@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoginCtr;
 use App\Http\Controllers\UserCtr;
+use App\Http\Controllers\TransacoesCtr;
 
 Route::prefix("user")->group(function(){
     Route::post("/create", [UserCtr::class, 'store']);
@@ -18,7 +18,10 @@ Route::middleware("auth:sanctum")->group(function(){
     });
 
     Route::prefix("transacoes")->group(function(){
-        Route::get("/listar");
+        Route::get("/listar", [TransacoesCtr::class, 'index']);
+        Route::get("/destinatarios", [TransacoesCtr::class, 'destinatarios']);
     });
+
+    Route::post("/transaction", [TransacoesCtr::class, 'store']);
 
 });
