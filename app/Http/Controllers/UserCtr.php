@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Fortify\PasswordValidationRules;
+use App\Models\UserWallet;
 use App\Rules\ChecarDocumento;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -74,13 +75,27 @@ class UserCtr extends Controller
             ]
         ], $messages)->validate();
 
-        return User::create([
+        $newUserId = DB::table("users")->insertGetId([
             'nome_completo' => $request['nome_completo'],
             'documento' => $request['documento'],
             'tipo_conta' => $request['tipo_conta'],
             'email' => $request['email'],
             'password' => Hash::make($request['password']),
         ]);
+
+        UserWallet::create([
+            'descricao' => "Carteira Debito",
+            'tipo_carteira' => "debito",
+            'saldo' => 0,
+            'user_id' => $newUserId
+        ]);
+
+        if($newUserId){
+            return response(["sucesso" => "Registrado com sucesso"], 200);
+        }
+        else {
+            return response(["erro" => "Algo de errado ao cadastrar, tente novamente mais tarde."], 419);
+        }
     }
 
 
