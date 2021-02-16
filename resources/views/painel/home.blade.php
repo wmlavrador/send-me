@@ -110,6 +110,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
+<script src="/assets/js/moment.js"></script>
+<script src="/assets/js/moment-with-locale.js"></script>
 <script>
     $.ajaxSetup({
         headers: {
@@ -127,6 +129,7 @@
 <script type="text/javascript">
     $('#documento_cpf').mask('000.000.000-00');
     $('#documento_cnpj').mask('00.000.000/0000-00');
+    moment.locale("pt-br");
 </script>
 
 </body>

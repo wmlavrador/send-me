@@ -26,7 +26,7 @@ $(function(){
                     <td>`+transacao['pagador']+`</td>
                     <td>`+transacao['recebedor']+`</td>
                     <td>R$ `+transacao['valor']+`</td>
-                    <td>`+transacao['atualizado']+`</td>
+                    <td>`+moment(transacao['atualizado']).startOf('hour').fromNow()+`</td>
                     <td>
                         <div class="dropdown show">
                           <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -35,8 +35,7 @@ $(function(){
 
                           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                             <a class="dropdown-item" href="javascript:void" onclick="devolver(`+transacao['id']+`)">Devolver</a>
-                            <a class="dropdown-item" href="javascript:void">Estornar</a>
-                            <a class="dropdown-item" href="javascript:void">Apagar</a>
+                            <a class="dropdown-item" href="javascript:void" onclick="devolver(`+transacao['id']+`)">Estornar</a>
                           </div>
                         </div>
                     </td>
