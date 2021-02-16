@@ -47,7 +47,7 @@ class UserCtr extends Controller
 
         $validarDoc = new ChecarDocumento();
 
-        $request['tipo_conta'] = $validarDoc->validarCPF($request['documento']) ? 'usuario' : 'lojista';
+        $request['tipo_conta'] = $validarDoc->validarCPF($request['documento']) ? '1' : '2';
         $request['documento'] = preg_replace('/[^0-9]/', '', (string) $request['documento']);
 
         $messages = [
@@ -85,7 +85,7 @@ class UserCtr extends Controller
 
         UserWallet::create([
             'descricao' => "Carteira Debito",
-            'tipo_carteira' => "debito",
+            'tipo_carteira' => "1",
             'saldo' => 0,
             'user_id' => $newUserId
         ]);
