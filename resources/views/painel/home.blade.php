@@ -81,7 +81,8 @@
                                 <th scope="col">Origem</th>
                                 <th scope="col">Favorecido</th>
                                 <th scope="col">Valor</th>
-                                <th scope="col">Autorizado dia</th>
+                                <th scope="col">Atualizado dia</th>
+                                <th scope="col">Situação</th>
                                 <th scope="col">Ações</th>
                             </tr>
                             </thead>
@@ -112,6 +113,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
 <script src="/assets/js/moment.js"></script>
 <script src="/assets/js/moment-with-locale.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
     $.ajaxSetup({
         headers: {
