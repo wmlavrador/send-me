@@ -48,4 +48,13 @@ class User extends Authenticatable
         return $this->hasMany(UserWallet::class);
     }
 
+    public static function getTipoConta($cod){
+        $tiposConta = [
+          "1" => "Pessoa Física",
+          "2" => "Pessoa Jurídica"
+        ];
+
+        return $tiposConta[$cod];
+    }
+
 }
