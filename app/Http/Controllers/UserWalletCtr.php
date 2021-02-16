@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class UserWalletCtr extends Controller
 {
@@ -40,8 +40,8 @@ class UserWalletCtr extends Controller
 
     public function depositar(Request $request){
 
-        $Payee = User::find(Auth::id())->carteiras()->where("tipo_carteira", '=', 'debito')->first();
-        $Payee->saldo = $Payee->increment('saldo', $request['value']);
+        $payee = User::find(Auth::id())->carteiras()->where("tipo_carteira", '=', 'debito')->first();
+        $payee->increment('saldo', $request->value);
 
         return response(["sucesso" => "Deposito realizado com sucesso!"]);
     }
