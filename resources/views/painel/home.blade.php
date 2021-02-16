@@ -65,19 +65,10 @@
         </div>
         <!-- Portfolio Grid Items-->
         <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        Minha Carteira
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title"><small>saldo </small>R$ 123,99</h5>
-                        <a href="#" class="btn btn-primary">Depositar</a>
-                        <a href="#" class="btn btn-primary">Transferir</a>
-                    </div>
-                </div>
+            <div id="recebeCarteiras">
+
             </div>
-            <div class="col-md-8">
+            <div class="col-md-12 mt-4">
                 <div class="card">
                     <div class="card-header">
                         Minhas Transações
@@ -87,30 +78,15 @@
                             <thead class="thead-dark">
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Handle</th>
+                                <th scope="col">Origem</th>
+                                <th scope="col">Favorecido</th>
+                                <th scope="col">Valor</th>
+                                <th scope="col">Autorizado dia</th>
+                                <th scope="col">Ações</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <td>@fat</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Larry</td>
-                                <td>the Bird</td>
-                                <td>@twitter</td>
-                            </tr>
+                            <tbody id="recebeTransacoes">
+
                             </tbody>
                         </table>
                     </div>
