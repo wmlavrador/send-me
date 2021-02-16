@@ -51,7 +51,7 @@ class TransacoesCtr extends Controller
         $user = Auth::user();
 
         if($user['tipo_conta'] === "usuario"){
-            $destinatarios = User::all()->where("id", "<>" , $user['id'])->select("nome_completo", "id");
+            $destinatarios = User::select("nome_completo", "id")->where("id", "<>" , $user['id'])->get();
         }
         else {
             $destinatarios = [];
