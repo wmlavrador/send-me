@@ -22,4 +22,8 @@ class UserWallet extends Model
         "tipo_carteira" => "debito"
     ];
 
+    protected $hidden = [
+        "deleted_at"
+    ];
+
 }
