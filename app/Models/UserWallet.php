@@ -26,4 +26,14 @@ class UserWallet extends Model
         "deleted_at"
     ];
 
+    public static function getTipoCarteira($cod){
+        $tipos = [
+            "1" => "Debito",
+            "2" => "Crédito"
+        ];
+
+        return $tipos[$cod];
+    }
+
+
 }
