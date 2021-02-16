@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Transacoes;
 use App\Models\User;
-use App\Models\UserWallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +42,10 @@ class TransacoesCtr extends Controller
                      ->join("users", "users.id", "=", "trns.payee")
                      ->unionAll($trnsPayer)
                      ->where("users.id", '=', $userId)->get();
+
+        foreach($trnsPayee as  $key => $col){
+            $col->situacao = Transacoes::getSituacao($col->situacao);
+        }
 
         return response($trnsPayee);
     }
@@ -89,7 +92,7 @@ class TransacoesCtr extends Controller
             ],
             "value" => [
                 function($atributo, $valor, $fail){
-                    $walletDefault = User::find(Auth::id())->carteiras()->where("tipo_carteira" , "=", "debito")->first();
+                    $walletDefault = User::find(Auth::id())->carteiras()->where("tipo_carteira" , "=", "1")->first();
 
                     if($valor > $walletDefault['saldo']){
                         $fail("O Valor da transferência excede o saldo de R$ {$walletDefault['saldo']} em sua carteira!");
@@ -107,7 +110,7 @@ class TransacoesCtr extends Controller
             "payer" => $request['payer'],
             "payee" => $request['payee'],
             "valor" => $request['value'],
-            "situacao" => "aguardando"
+            "situacao" => "1"
         ]);
 
         // Desconta da carteira de origem,
@@ -117,20 +120,20 @@ class TransacoesCtr extends Controller
 
         if($autorizado){
             $transacao = Transacoes::find($trnsAguardando);
-            $transacao->situacao = "aprovado";
+            $transacao->situacao = "2";
             $transacao->save();
 
             $criarNotificacao = NotificacoesCtr::novaNotificacao([
-                "origem" => "transacao",
+                "origem" => "1",
                 "id_origem" => $trnsAguardando,
                 "mensagem" => "Você recebeu uma nova transferência",
-                "user_id" => $request['payee']
+                "payee" => $request['payee']
             ]);
 
         }
         else {
             $transacao = Transacoes::find($trnsAguardando);
-            $transacao->situacao = "nao_autorizado";
+            $transacao->situacao = "5";
             $transacao->save();
 
             return response(['erro' => 'transferência não autorizada!'], 422);
@@ -139,7 +142,7 @@ class TransacoesCtr extends Controller
     }
 
     public function estornar($idTransacao){
-        $transacao = Transacoes::where("situacao", "=", "aprovado")->findOrFail($idTransacao);
+        $transacao = Transacoes::where("situacao", "=", "2")->findOrFail($idTransacao);
 
         $dados = [
             "owner" => $transacao['payer'],
@@ -159,7 +162,7 @@ class TransacoesCtr extends Controller
         $autorizado = UserWalletCtr::transferir($dados);
 
         if($autorizado){
-            $transacao->situacao = "estornado";
+            $transacao->situacao = "3";
             $transacao->save();
 
             return response(["sucesso" => "Valor estornado com sucesso"], 200);
@@ -171,7 +174,7 @@ class TransacoesCtr extends Controller
     }
 
     public function devolver($idTransacao){
-        $transacao = Transacoes::where("situacao", "=", "aprovado")->findOrFail($idTransacao);
+        $transacao = Transacoes::where("situacao", "=", "2")->findOrFail($idTransacao);
 
         $dados = [
             "payer" => $transacao['payee'],
@@ -184,13 +187,16 @@ class TransacoesCtr extends Controller
                 if(Auth::id() != $payer){ // Somente o usario que recebeu devolver o valor.
                     $fail("Você não pode devolver esta transação.");
                 }
+                if(Auth::user()['tipo_conta'] == 2){
+                    $fail("Seu perfil não está autorizado para este tipo de transação");
+                }
             }
         ])->validate();
 
         $autorizado = UserWalletCtr::transferir($dados);
 
         if($autorizado){
-            $transacao->situacao = "devolvido";
+            $transacao->situacao = "4";
             $transacao->save();
 
             return response(["message" => "Valor devolvido com sucesso!"], 200);
