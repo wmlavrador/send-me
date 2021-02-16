@@ -28,7 +28,7 @@ Route::middleware("auth:sanctum")->group(function(){
 
     Route::prefix("/minhas-carteiras")->group(function(){
         Route::get("/listar", [UserWalletCtr::class, 'index']);
-        Route::post("/depositar/{idCarteira}", [UserWalletCtr::class, 'depositar']);
+        Route::post("/depositar", [UserWalletCtr::class, 'depositar']);
     });
 
     Route::post("/transaction", [TransacoesCtr::class, 'store']);
