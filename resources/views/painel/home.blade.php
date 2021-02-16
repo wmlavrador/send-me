@@ -114,6 +114,7 @@
 <script src="/assets/js/moment.js"></script>
 <script src="/assets/js/moment-with-locale.js"></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script>
     $.ajaxSetup({
         headers: {
@@ -125,6 +126,20 @@
             }
         }
     });
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('fdfdc1849218cefa17cc', {
+        cluster: 'us2',
+        auth: {
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        }
+    });
+
+    var channel = pusher.subscribe('notificacoes.{{ \Illuminate\Support\Facades\Auth::id() }}');
+
 </script>
 <script src="/assets/js/app.js"></script>
 <script src="/assets/js/admin.home.js"></script>
@@ -132,6 +147,18 @@
     $('#documento_cpf').mask('000.000.000-00');
     $('#documento_cnpj').mask('00.000.000/0000-00');
     moment.locale("pt-br");
+    $(function(){
+        channel.bind('App\\Events\\NovaTransacao', function(data) {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Nova transação',
+                showConfirmButton: false,
+                timer: 4500,
+                toast: true
+            });
+        });
+    });
 </script>
 
 </body>
