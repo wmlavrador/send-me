@@ -7,7 +7,7 @@
     <meta name="author" content="" />
     <title>My Transfer -</title>
     <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico" />
 
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <link rel="stylesheet" href="/assets/css/login.css">
@@ -45,6 +45,10 @@
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }, statusCode: {
+                419: function () {
+                    window.location = "/login"
+                }
             }
         });
     </script>
