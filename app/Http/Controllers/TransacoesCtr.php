@@ -23,6 +23,7 @@ class TransacoesCtr extends Controller
                          "trns.created_at as criado",
                          "trns.updated_at as atualizado",
                          "trns.valor",
+                         "trns.situacao",
                          "trns.id"
                      )
                      ->join("users", "users.id", "=", "trns.payer")
@@ -36,6 +37,7 @@ class TransacoesCtr extends Controller
                          "trns.created_at as criado",
                          "trns.updated_at as atualizado",
                          "trns.valor",
+                         "trns.situacao",
                          "trns.id"
                      )
                      ->join("users", "users.id", "=", "trns.payee")
@@ -49,7 +51,7 @@ class TransacoesCtr extends Controller
         $user = Auth::user();
 
         if($user['tipo_conta'] === "usuario"){
-            $destinatarios = User::all()->where("id", "<>" , $user['id']);
+            $destinatarios = User::all()->where("id", "<>" , $user['id'])->select("nome_completo", "id");
         }
         else {
             $destinatarios = [];
@@ -180,7 +182,7 @@ class TransacoesCtr extends Controller
         Validator::make($dados, [
             "payer" => function($attr, $payer, $fail){
                 if(Auth::id() != $payer){ // Somente o usario que recebeu devolver o valor.
-                    $fail("Tipo de devolução não autorizada!");
+                    $fail("Você não pode devolver esta transação.");
                 }
             }
         ])->validate();
@@ -188,13 +190,13 @@ class TransacoesCtr extends Controller
         $autorizado = UserWalletCtr::transferir($dados);
 
         if($autorizado){
-            $transacao->situacao = "estornado";
+            $transacao->situacao = "devolvido";
             $transacao->save();
 
-            return response(["sucesso" => "Valor devolvido com sucesso"], 200);
+            return response(["message" => "Valor devolvido com sucesso!"], 200);
         }
         else {
-            return response(["erro" => "A Devolução não foi autorizado!"], 419);
+            return response(["message" => "A Devolução não foi autorizado."], 419);
         }
 
     }
