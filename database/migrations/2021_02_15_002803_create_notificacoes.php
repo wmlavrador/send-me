@@ -15,6 +15,11 @@ class CreateNotificacoes extends Migration
     {
         Schema::create('notificacoes', function (Blueprint $table) {
             $table->id();
+            $table->string("origem");
+            $table->bigInteger("id_origem");
+            $table->string("mensagem");
+            $table->string("situacao");
+            $table->foreignId("user_id")->references("id")->on("users");
             $table->timestamps();
         });
     }
