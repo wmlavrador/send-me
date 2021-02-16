@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Request;
 
 class UserWalletCtr extends Controller
 {
+    public function index(){
+        return User::find(Auth::id())->carteiras()->get();
+    }
+
     // Return bool
     public static function transferir($input){
         $mokyAuth = "https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6";
