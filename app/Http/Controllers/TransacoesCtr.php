@@ -71,7 +71,7 @@ class TransacoesCtr extends Controller
             "value.required" => "Informe o valor a ser transferido!",
         ];
 
-        Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             "payer" => [
                 'required',
                 function($atributo, $payer, $fail){
@@ -102,10 +102,14 @@ class TransacoesCtr extends Controller
                     }
                 }
             ]
-        ], $messages)->validate();
+        ], $messages);
 
-        // Após autorizado
-        $trnsAguardando = DB::table("transacoes")->insertGetId([
+        if(!empty($validator->errors())){
+            return response()->json(["erro" => $validator->errors()->first()], 422);
+        }
+
+        // Cadastra a nova transação, em andamento
+        $novaTransacao = DB::table("transacoes")->insertGetId([
             "payer" => $request['payer'],
             "payee" => $request['payee'],
             "valor" => $request['value'],
@@ -158,16 +162,16 @@ class TransacoesCtr extends Controller
             }
         ])->validate();
 
-        $autorizado = UserWalletCtr::transferir($dados);
+        $transferir = UserWalletCtr::transferir($dados);
 
-        if($autorizado){
+        if($transferir){ // se autorizar, atualiza a transação para Estornado
             $transacao->situacao = "3";
             $transacao->save();
 
-            return response(["sucesso" => "Valor estornado com sucesso"], 200);
+            return response()->json(["sucesso" => "Valor estornado com sucesso"], 200);
         }
         else {
-            return response(["erro" => "O Estorno não foi autorizado!"], 419);
+            return response()->json(["erro" => "O Estorno não foi autorizado!"], 419);
         }
 
     }
