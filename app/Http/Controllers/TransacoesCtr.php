@@ -63,7 +63,7 @@ class TransacoesCtr extends Controller
         return response($destinatarios);
     }
 
-    public function store(Request $request){
+    public function novaTransacao(Request $request){
 
         $messages = [
             "payer.required" => "Impossível continuar a transferência, efetue login novamente.",

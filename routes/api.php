@@ -31,6 +31,6 @@ Route::middleware("auth:sanctum")->group(function(){
         Route::post("/depositar", [UserWalletCtr::class, 'depositar']);
     });
 
-    Route::post("/transaction", [TransacoesCtr::class, 'store']);
+    Route::post("/transaction", [TransacoesCtr::class, 'novaTransacao']);
 
 });
