@@ -119,6 +119,7 @@
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            "Authorization":"Bearer {{ \Illuminate\Support\Facades\Auth::user()->createToken("Autentication")->plainTextToken }}"
         },
         statusCode: {
             401: function () {

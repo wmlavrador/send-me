@@ -65,7 +65,7 @@
 
             if(form.checkValidity()){
                 $.post("/login", {email: email, password: password}).then(function(response){
-                    localStorage.setItem("token", response);
+                    localStorage.setItem("token", response.accessToken);
                     window.location = "/admin/home";
                 }).fail(function(response){
                     $erros = "";
