@@ -75,7 +75,15 @@ class UserCtr extends Controller
         ]);
 
         if($newUserId){
-            return response()->json(["sucesso" => "Registrado com sucesso"], 200);
+
+            $newUser = User::where("documento", $request['documento'])->first();
+            $accessToken = $newUser->createToken($request['email'])->plainTextToken;
+
+            return response()->json([
+                "sucesso" => "Registrado com sucesso",
+                "accessToken" => $accessToken,
+                "typeAuth" => "Bearer"
+            ], 200);
         }
         else {
             return response()->json(["erro" => "Algo de errado ao cadastrar, tente novamente mais tarde."], 422);
@@ -111,7 +119,7 @@ class UserCtr extends Controller
 
         return response()->json([
            "accessToken" => $token,
-           "type" => "bearer"
+           "typeAuth" => "Bearer"
         ]);
 
     }
