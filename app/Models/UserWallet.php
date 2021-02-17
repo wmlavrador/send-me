@@ -35,5 +35,15 @@ class UserWallet extends Model
         return $tipos[$cod];
     }
 
+    // Verifica se determinada carteira existe os recursos necessários para transferência.
+    public static function existeRecursos($inputValue){
+        $carteiraPadrao = User::find(Auth::id())->carteiras()->where("tipo_carteira", '=', '1')->first();
+
+        if($inputValue > $carteiraPadrao['saldo']){
+            return false;
+        }
+
+        return true;
+    }
 
 }

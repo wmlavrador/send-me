@@ -67,7 +67,8 @@ class TransacoesCtr extends Controller
 
         $messages = [
             "payer.required" => "Impossível continuar a transferência, efetue login novamente.",
-            "payee.required" => "Informe o destinatário do valor a ser transferido."
+            "payee.required" => "Informe o destinatário do valor a ser transferido.",
+            "value.required" => "Informe o valor a ser transferido!",
         ];
 
         Validator::make($request->all(), [
@@ -91,15 +92,13 @@ class TransacoesCtr extends Controller
                 }
             ],
             "value" => [
-                function($atributo, $valor, $fail){
-                    $walletDefault = User::find(Auth::id())->carteiras()->where("tipo_carteira" , "=", "1")->first();
-
-                    if($valor > $walletDefault['saldo']){
-                        $fail("O Valor da transferência excede o saldo de R$ {$walletDefault['saldo']} em sua carteira!");
+                "required",
+                function($attr, $value, $fail){
+                    if(UserWallet::existeRecursos($value) === false){
+                        $fail("Saldo insuficiente para continuar!");
                     }
-
-                    if($valor < 1){
-                        $fail("Valor mínimo para transferência é R$ 1,00 ");
+                    if($value < 0.5){
+                        $fail("Valor mínimo por transação R$ 0,5 ");
                     }
                 }
             ]
@@ -113,30 +112,30 @@ class TransacoesCtr extends Controller
             "situacao" => "1"
         ]);
 
-        // Desconta da carteira de origem,
-        // Passa pelo processo de autorização
-        // Chega na carteira de destino.
-        $autorizado = UserWalletCtr::transferir($request->all());
+        // Processo de transferência
+        $transferir = UserWalletCtr::transferir([
+            "payer" => $request['payer'],
+            "payee" => $request['payee'],
+            "value" => $request['value'],
+            "id_origem" => $novaTransacao,
+            "origem" => "1"
+        ]);
 
-        if($autorizado){
-            $transacao = Transacoes::find($trnsAguardando);
+        if($transferir){
+            // Atualzia a transação em andamento, para Aprovada.
+            $transacao = Transacoes::find($novaTransacao);
             $transacao->situacao = "2";
             $transacao->save();
 
-            $criarNotificacao = NotificacoesCtr::novaNotificacao([
-                "origem" => "1",
-                "id_origem" => $trnsAguardando,
-                "mensagem" => "Você recebeu uma nova transferência",
-                "payee" => $request['payee']
-            ]);
-
+            return response()->json(["sucesso" => "Transação concluída, transferência aprovada!"], 200);
         }
         else {
-            $transacao = Transacoes::find($trnsAguardando);
+            // Atualiza a transação para Não autorizada
+            $transacao = Transacoes::find($novaTransacao);
             $transacao->situacao = "5";
             $transacao->save();
 
-            return response(['erro' => 'transferência não autorizada!'], 422);
+            return response()->json(["erro" => "Transferência não foi autorizada!"], 422);
         }
 
     }

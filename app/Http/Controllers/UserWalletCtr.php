@@ -21,11 +21,22 @@ class UserWalletCtr extends Controller
         $response = Http::get($mokyAuth);
 
         if($response['message'] == "Autorizado" && $response->successful()){
-            $payer = User::find($input['payer'])->carteiras()->where("tipo_carteira", '=', '1')->first();
+            $payer = User::find($input['payer']);
+
+            $payer->carteiras()->where("tipo_carteira", '=', '1')->first();
             $payee = User::find($input['payee'])->carteiras()->where("tipo_carteira", '=', '1')->first();
 
-            if($input['value'] > $payer['saldo']){
-                return response(["erro" => "O Valor da transferência excede o saldo de R$ {$payer['saldo']} em sua carteira!"], 419);
+            // Verifica se o tipo da conta está elegível para transferências.
+            if($payer->tipo_conta == 2){
+                return false;
+            }
+
+            // Verifica se o Pagador possui recursos;
+            $existeRecurso = UserWallet::existeRecursos($input['value']);
+
+            if($existeRecurso === false)
+            {
+                return false;
             }
 
             $payer->decrement('saldo', $input['value']);
