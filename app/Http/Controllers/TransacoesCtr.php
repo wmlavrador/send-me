@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transacoes;
 use App\Models\User;
+use App\Models\UserWallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -104,8 +105,10 @@ class TransacoesCtr extends Controller
             ]
         ], $messages);
 
-        if(!empty($validator->errors())){
-            return response()->json(["erro" => $validator->errors()->first()], 422);
+        $firstErro = $validator->errors()->first();
+
+        if(!empty($firstErro)){
+            return response()->json(["erro" => $firstErro], 422);
         }
 
         // Cadastra a nova transação, em andamento
@@ -154,13 +157,19 @@ class TransacoesCtr extends Controller
             "value" => $transacao['valor']
         ];
 
-        Validator::make($dados, [
+        $validator = Validator::make($dados, [
             "owner" => function($attr, $owner, $fail){
                 if(Auth::id() != $owner){ // Somente o usario que pagou pode estornar o valor.
                     $fail("Você não está habilitado para pedir o estorno!");
                 }
             }
-        ])->validate();
+        ]);
+
+        $firstErro = $validator->errors()->first();
+
+        if(!empty($firstErro)){
+            return response()->json(["erro" => $firstErro], 422);
+        }
 
         $transferir = UserWalletCtr::transferir($dados);
 
@@ -171,13 +180,13 @@ class TransacoesCtr extends Controller
             return response()->json(["sucesso" => "Valor estornado com sucesso"], 200);
         }
         else {
-            return response()->json(["erro" => "O Estorno não foi autorizado!"], 419);
+            return response()->json(["erro" => "O Valor do Estorno não foi autorizado!"], 422);
         }
 
     }
 
-    public function devolver($idTransacao){
-        $transacao = Transacoes::where("situacao", "=", "2")->findOrFail($idTransacao);
+    public function devolver($idTransacao, Transacoes $transacoes){
+        $transacao = $transacoes->where("situacao", "=", "2")->findOrFail($idTransacao);
 
         $dados = [
             "payer" => $transacao['payee'],
@@ -185,7 +194,7 @@ class TransacoesCtr extends Controller
             "value" => $transacao['valor']
         ];
 
-        Validator::make($dados, [
+        $validator = Validator::make($dados, [
             "payer" => function($attr, $payer, $fail){
                 if(Auth::id() != $payer){ // Somente o usario que recebeu devolver o valor.
                     $fail("Você não pode devolver esta transação.");
@@ -194,7 +203,13 @@ class TransacoesCtr extends Controller
                     $fail("Seu perfil não está autorizado para este tipo de transação");
                 }
             }
-        ])->validate();
+        ]);
+
+        $firstErro = $validator->errors()->first();
+
+        if(!empty($firstErro)){
+            return response()->json(["erro" => $firstErro], 422);
+        }
 
         $autorizado = UserWalletCtr::transferir($dados);
 
@@ -202,10 +217,10 @@ class TransacoesCtr extends Controller
             $transacao->situacao = "4";
             $transacao->save();
 
-            return response(["message" => "Valor devolvido com sucesso!"], 200);
+            return response()->json(["sucesso" => "Valor devolvido com sucesso!"], 200);
         }
         else {
-            return response(["message" => "A Devolução não foi autorizado."], 419);
+            return response()->json(["erro" => "A Devolução não foi autorizado."], 422);
         }
 
     }
