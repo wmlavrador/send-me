@@ -24,7 +24,7 @@ class UserWalletCtr extends Controller
         if($response['message'] == "Autorizado" && $response->successful()){
             $payer = User::find($input['payer']);
 
-            $payer->carteiras()->where("tipo_carteira", '=', '1')->first();
+            $walletPayer = $payer->carteiras()->where("tipo_carteira", '=', '1')->first();
             $payee = User::find($input['payee'])->carteiras()->where("tipo_carteira", '=', '1')->first();
 
             // Verifica se o tipo da conta está elegível para transferências.
@@ -40,7 +40,7 @@ class UserWalletCtr extends Controller
                 return false;
             }
 
-            $payer->decrement('saldo', $input['value']);
+            $walletPayer->decrement('saldo', $input['value']);
             $payee->increment('saldo', $input['value']);
 
             NotificacoesCtr::novaNotificacao([
