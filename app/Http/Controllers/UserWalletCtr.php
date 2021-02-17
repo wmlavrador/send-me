@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\User;
+use App\Models\UserWallet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -41,6 +42,13 @@ class UserWalletCtr extends Controller
 
             $payer->decrement('saldo', $input['value']);
             $payee->increment('saldo', $input['value']);
+
+            NotificacoesCtr::novaNotificacao([
+                "origem" => "1",
+                "id_origem" => $input["id_origem"],
+                "mensagem" => "Você recebeu uma nova transferência",
+                "payee" => $input['payee']
+            ]);
 
             return true;
         }
