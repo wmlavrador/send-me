@@ -71,10 +71,10 @@ class UserCtr extends Controller
         ]);
 
         if($newUserId){
-            return response(["sucesso" => "Registrado com sucesso"], 200);
+            return response()->json(["sucesso" => "Registrado com sucesso"], 200);
         }
         else {
-            return response(["erro" => "Algo de errado ao cadastrar, tente novamente mais tarde."], 419);
+            return response()->json(["erro" => "Algo de errado ao cadastrar, tente novamente mais tarde."], 422);
         }
     }
 
