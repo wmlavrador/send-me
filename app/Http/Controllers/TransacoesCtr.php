@@ -53,8 +53,8 @@ class TransacoesCtr extends Controller
     public function destinatarios(){
         $user = Auth::user();
 
-        if($user['tipo_conta'] === "usuario"){
-            $destinatarios = User::select("nome_completo", "id")->where("id", "<>" , $user['id'])->get();
+        if($user->tipo_conta === "1"){
+            $destinatarios = User::select("nome_completo", "id")->where("id", "<>" , $user->id)->get();
         }
         else {
             $destinatarios = [];
