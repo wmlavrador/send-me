@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Fortify\PasswordValidationRules;
 use App\Models\User;
 use App\Models\UserWallet;
 use App\Rules\ChecarDocumento;
@@ -14,6 +15,8 @@ use Illuminate\Validation\Rule;
 
 class UserCtr extends Controller
 {
+    use PasswordValidationRules;
+
     /**
      * Store a newly created resource in storage.
      *
@@ -29,11 +32,13 @@ class UserCtr extends Controller
         $request['documento'] = preg_replace('/[^0-9]/', '', (string) $request['documento']);
 
         $messages = [
-            "nome_cimpleto.required" => "Informe seu Nome Completo.",
+            "nome_completo.required" => "Informe seu Nome Completo.",
             "email.unique" => "Este e-mail já está cadastrado.",
             "email.email" => "Formato de e-mail incorreto.",
             "documento.required" => "O Campo documento é Obrigatório",
             "documento.unique" => "Já existe cadastro com este Documento.",
+            "password.required" => "Campo :attribute é obrigatório",
+            "password_confirmation.required" => "O Campo :attribute é obrigatório."
         ];
 
         Validator::make($request->all(), [
@@ -50,7 +55,8 @@ class UserCtr extends Controller
                 'required',
                 Rule::unique(User::class, "documento"),
                 new ChecarDocumento
-            ]
+            ],
+            "password_confirmation" => "required"
         ], $messages)->validate();
 
         $newUserId = DB::table("users")->insertGetId([
