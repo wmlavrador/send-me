@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transacoes;
 use App\Models\User;
 use App\Models\UserWallet;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -147,8 +148,12 @@ class TransacoesCtr extends Controller
 
     }
 
-    public function estornar($idTransacao){
-        $transacao = Transacoes::where("situacao", "=", "2")->findOrFail($idTransacao);
+    public function estornar($idTransacao, Transacoes $transacoes){
+        $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->get();
+
+        if(empty($transacao) == ""){
+            return response()->json(["erro" => "Transação não foi encontrada"], 422);
+        }
 
         $dados = [
             "owner" => $transacao['payer'],
@@ -186,7 +191,11 @@ class TransacoesCtr extends Controller
     }
 
     public function devolver($idTransacao, Transacoes $transacoes){
-        $transacao = $transacoes->where("situacao", "=", "2")->findOrFail($idTransacao);
+        $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->get();
+
+        if(empty($transacao) == ""){
+            return response()->json(["erro" => "Transação não foi encontrada"], 422);
+        }
 
         $dados = [
             "payer" => $transacao['payee'],
