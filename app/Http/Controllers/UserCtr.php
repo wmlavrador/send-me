@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Fortify\PasswordValidationRules;
 use App\Models\User;
 use App\Models\UserWallet;
 use App\Rules\ChecarDocumento;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -14,13 +14,11 @@ use Illuminate\Validation\Rule;
 
 class UserCtr extends Controller
 {
-    use PasswordValidationRules;
-
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -76,6 +74,45 @@ class UserCtr extends Controller
         else {
             return response()->json(["erro" => "Algo de errado ao cadastrar, tente novamente mais tarde."], 422);
         }
+    }
+
+    public function autorizar(Request $request){
+        $validator = Validator::make($request->all(), [
+           "email" => "required|email",
+           "password" => "required"
+        ], [
+            "email.required" => "Campo email obrigatório!",
+            "email.email" => "Formato de email inválido!",
+            "password" => "Campo senha é obrigatório!"
+        ]);
+
+        $firstError = $validator->errors()->first();
+        if(!empty($firstError)){
+            return response()->json(["erro" => $firstError], 422);
+        }
+
+        $user = User::where("email", $request->email)->first();
+
+        if(!$user){
+            return response()->json(["erro" => "Endereço de email não encontrado"], 422);
+        }
+
+        if(!Hash::check($request->password, $user->password)){
+            return response()->json(["erro" => "Senha incorreta!"], 422);
+        }
+
+        $token = $user->createToken($request->email)->plainTextToken;
+
+        return response()->json([
+           "accessToken" => $token,
+           "type" => "bearer"
+        ]);
+
+    }
+
+    public function logout(){
+        Auth::user()->tokens()->delete();
+        return response()->json(["sucesso" => "Desconectado com sucesso."], 200);
     }
 
 }

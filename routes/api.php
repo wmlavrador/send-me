@@ -8,11 +8,13 @@ use \App\Http\Controllers\UserWalletCtr;
 
 Route::prefix("user")->group(function(){
     Route::post("/create", [UserCtr::class, 'store']);
+    Route::post("/login", [UserCtr::class, 'autorizar']);
 });
 
 Route::middleware("auth:sanctum")->group(function(){
 
     Route::prefix("user")->group(function(){
+        Route::post("/logout", [UserCtr::class, 'logout']);
         Route::get("/me", function(Request $request){
             return $request->user();
         })->name("profile");
