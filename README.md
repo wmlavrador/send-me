@@ -9,3 +9,8 @@ nossos módulos são.
 - Estorno
 - Depósito
 - Carteiras
+
+## Documentação da API
+Segue a documentação da API RESTFUL.
+
+https://documenter.getpostman.com/view/3032173/TWDUpdLL
