@@ -56,6 +56,7 @@ class TransacoesCtr extends Controller
             "payer.required" => "Impossível continuar a transferência, efetue login novamente.",
             "payee.required" => "Informe o destinatário do valor a ser transferido.",
             "value.required" => "Informe o valor a ser transferido!",
+            "value.numeric" => ":attribute é um campo numérico."
         ];
 
         $validator = Validator::make($request->all(), [
@@ -92,6 +93,7 @@ class TransacoesCtr extends Controller
                         $fail($checkDecimal);
                     }
                 },
+                'numeric',
                 "max:999999999"
             ]
         ], $messages);
