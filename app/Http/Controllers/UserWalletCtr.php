@@ -59,6 +59,11 @@ class UserWalletCtr extends Controller
 
     public function depositar(Request $request){
 
+        $checkDecimal = UserWallet::checkDecimal($request->value);
+        if(!empty($checkDecimal)){
+            return response()->json(["erro" => $checkDecimal], 422);
+        }
+
         $payee = User::find(Auth::id())->carteiras()->where("tipo_carteira", '=', '1')->first();
         $payee->increment('saldo', $request->value);
 

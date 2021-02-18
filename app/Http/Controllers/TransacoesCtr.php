@@ -87,7 +87,12 @@ class TransacoesCtr extends Controller
                     if($value < 0.5){
                         $fail("Valor mínimo por transação R$ 0,5 ");
                     }
-                }
+                    $checkDecimal = UserWallet::checkDecimal($value);
+                    if(!empty($checkDecimal)){
+                        $fail($checkDecimal);
+                    }
+                },
+                "max:999999999"
             ]
         ], $messages);
 

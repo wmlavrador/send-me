@@ -47,4 +47,22 @@ class UserWallet extends Model
         return true;
     }
 
+    // Verifica o formato de value permitido.
+    public static function checkDecimal($variavel)
+    {
+        if(preg_match("/(,)/", $variavel)){
+            return "Este formato '{$variavel} é inválido. formato permitido: 123.99";
+        }
+
+        $parts = explode(".", $variavel);
+        if(count($parts) == 2){
+            if(strlen($parts[1]) > 3){
+                return "Só é permitido até 3 dígitos decimais!";
+            }
+        }
+        if(count($parts) > 2) {
+            return "Informe o valor inteiro seguido do ponto indicando o valor decimal!";
+        }
+    }
+
 }
