@@ -22,6 +22,7 @@ class TransacoesCtr extends Controller
                     "tra.situacao",
                     "tra.created_at as criado",
                     "tra.updated_at as atualizado",
+                    "tra.valor",
                     "tra.id",
         )
         ->join("users as payer", "payer.id", "=", "payer")
