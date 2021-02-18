@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Transacoes;
 use App\Models\User;
 use App\Models\UserWallet;
-use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,40 +15,25 @@ class TransacoesCtr extends Controller
     public function index(){
         $userId = Auth::id();
 
-        $trnsPayer = DB::table("transacoes", "trns")
-                     ->select(
-                         "users.nome_completo as pagador",
-                         DB::raw("(select nome_completo from users where id = trns.payee) as recebedor"),
-                         "trns.situacao",
-                         "trns.created_at as criado",
-                         "trns.updated_at as atualizado",
-                         "trns.valor",
-                         "trns.situacao",
-                         "trns.id"
-                     )
-                     ->join("users", "users.id", "=", "trns.payer")
-                     ->where("users.id", '=', $userId);
+        $transacoes = DB::table("transacoes as tra")
+        ->select(
+            "payer.nome_completo as pagador",
+                    "payee.nome_completo as recebedor",
+                    "tra.situacao",
+                    "tra.created_at as criado",
+                    "tra.updated_at as atualizado",
+                    "tra.id",
+        )
+        ->join("users as payer", "payer.id", "=", "payer")
+        ->join("users as payee", "payee.id", "=", "payee")
+        ->where("payee", $userId)
+        ->orWhere("payer", $userId)->get();
 
-        $trnsPayee = DB::table("transacoes", "trns")
-                     ->select(
-                         DB::raw("(select nome_completo from users where id = trns.payer) as pagador"),
-                         "users.nome_completo as recebedor",
-                         "trns.situacao",
-                         "trns.created_at as criado",
-                         "trns.updated_at as atualizado",
-                         "trns.valor",
-                         "trns.situacao",
-                         "trns.id"
-                     )
-                     ->join("users", "users.id", "=", "trns.payee")
-                     ->unionAll($trnsPayer)
-                     ->where("users.id", '=', $userId)->get();
-
-        foreach($trnsPayee as  $key => $col){
+        foreach($transacoes as  $key => $col){
             $col->situacao = Transacoes::getSituacao($col->situacao);
         }
 
-        return response($trnsPayee);
+        return response()->json($transacoes);
     }
 
     public function destinatarios(){
