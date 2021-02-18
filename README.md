@@ -12,5 +12,12 @@ nossos módulos são.
 
 ## Documentação da API
 Segue a documentação da API RESTFUL.
-
 https://documenter.getpostman.com/view/3032173/TWDUpdLL
+
+## Tecnologias
+
+- PHP 7.4
+- Laravel 8.x
+- MySql 5.7
+- Bootstrap 4
+- jQuery 3.5
