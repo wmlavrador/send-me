@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{
+    Factories\HasFactory,
+    Model
+};
 
 class Notificacoes extends Model
 {
@@ -17,7 +19,14 @@ class Notificacoes extends Model
         "user_id"
     ];
 
-    public static function getStatus($cod){
+    /**
+     * Retorna string com o nome do status informado
+     *
+     * @param  int  $cod
+     * @return string
+     */
+    public static function getStatus($cod): string
+    {
         $status = [
           "1" => "Em Andamento",
           "2" => "Enviado",
@@ -27,7 +36,14 @@ class Notificacoes extends Model
         return $status[$cod];
     }
 
-    public static function getOrigem($cod){
+    /**
+     * Retorna descrição da origem informada
+     *
+     * @param  int  $cod
+     * @return string
+     */
+    public static function getOrigem($cod): string
+    {
         $origem = [
             "1" => "Transações",
         ];

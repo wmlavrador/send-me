@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\{
+    Factories\HasFactory,
+    SoftDeletes
+};
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens,HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -48,11 +53,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function carteiras(){
+    /**
+     * Retorna as carteiras dos usuários
+     *
+     * @return \App\Models\UserWallet
+     */
+    public function carteiras(): object
+    {
         return $this->hasMany(UserWallet::class);
     }
 
-    public static function getTipoConta($cod){
+    /**
+     * Retorna a descrição do tipo de conta
+     *
+     * @param  int  $cod
+     * @return string
+     */
+    public static function getTipoConta($cod): string
+    {
         $tiposConta = [
           "1" => "Pessoa Física",
           "2" => "Pessoa Jurídica"

@@ -2,19 +2,22 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserCtr;
-use App\Http\Controllers\TransacoesCtr;
-use \App\Http\Controllers\UserWalletCtr;
+use App\Http\Controllers\{
+    UserCtr,
+    TransacoesCtr,
+    UserWalletCtr,
+    LoginCtr
+};
 
 Route::prefix("user")->group(function(){
     Route::post("/create", [UserCtr::class, 'store']);
-    Route::post("/login", [UserCtr::class, 'autorizar']);
+    Route::post("/login", [LoginCtr::class, 'autorizar']);
 });
 
 Route::middleware("auth:sanctum")->group(function(){
 
     Route::prefix("user")->group(function(){
-        Route::post("/logout", [UserCtr::class, 'logout']);
+        Route::post("/logout", [LoginCtr::class, 'logout']);
         Route::get("/me", function(Request $request){
             return $request->user();
         })->name("profile");

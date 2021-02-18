@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
-use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\Fortify\UpdateUserPassword;
-use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Actions\Fortify\{
+    CreateNewUser,
+    ResetUserPassword,
+    UpdateUserPassword,
+    UpdateUserProfileInformation
+};
 use App\Http\Controllers\LoginCtr;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -32,8 +34,13 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Fortify::loginView(fn () => view('login'));
-        Fortify::registerView(fn () => view('welcome'));
+        Fortify::loginView(function(){
+            return view('login');
+        });
+
+        Fortify::registerView(function (){
+            return view("welcome");
+        });
 
         Fortify::authenticateUsing(LoginCtr::class);
         Fortify::createUsersUsing(CreateNewUser::class);

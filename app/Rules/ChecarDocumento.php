@@ -59,6 +59,7 @@ class ChecarDocumento implements Rule
 
     /**
      * Verifica se o CPF é válido
+     *
      * @param int $input
      * @return bool
      */
@@ -88,7 +89,6 @@ class ChecarDocumento implements Rule
             }
         }
         return true;
-
     }
 
     /**
