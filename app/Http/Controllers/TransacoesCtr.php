@@ -115,8 +115,7 @@ class TransacoesCtr extends Controller
             "payer" => $request['payer'],
             "payee" => $request['payee'],
             "value" => $request['value'],
-            "id_origem" => $novaTransacao,
-            "origem" => "1"
+            "id_origem" => $novaTransacao
         ]);
 
         if($transferir){
@@ -139,9 +138,9 @@ class TransacoesCtr extends Controller
     }
 
     public function estornar($idTransacao, Transacoes $transacoes){
-        $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->get();
+        $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->first();
 
-        if(empty($transacao) == ""){
+        if(empty($transacao)){
             return response()->json(["erro" => "Transação não foi encontrada"], 422);
         }
 
@@ -149,7 +148,8 @@ class TransacoesCtr extends Controller
             "owner" => $transacao['payer'],
             "payer" => $transacao['payee'],
             "payee" => $transacao['payer'],
-            "value" => $transacao['valor']
+            "value" => $transacao['valor'],
+            "id_origem" => $idTransacao
         ];
 
         $validator = Validator::make($dados, [
@@ -181,16 +181,17 @@ class TransacoesCtr extends Controller
     }
 
     public function devolver($idTransacao, Transacoes $transacoes){
-        $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->get();
+        $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->first();
 
-        if(empty($transacao) == ""){
+        if(empty($transacao)){
             return response()->json(["erro" => "Transação não foi encontrada"], 422);
         }
 
         $dados = [
             "payer" => $transacao['payee'],
             "payee" => $transacao['payer'],
-            "value" => $transacao['valor']
+            "value" => $transacao['valor'],
+            "id_origem" => $idTransacao
         ];
 
         $validator = Validator::make($dados, [
