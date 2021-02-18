@@ -3,25 +3,38 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\User;
-use App\Models\UserWallet;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use App\Models\{User, UserWallet};
+use Illuminate\Support\Facades\{Auth, Http};
 use Illuminate\Http\Request;
 
 class UserWalletCtr extends Controller
 {
-    public function index(){
-        return User::find(Auth::id())->carteiras()->get();
+    /**
+     * Retorna a carteira padrão do usuario
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        return response()->json(User::find(Auth::id())->carteiras()->get());
     }
 
-    // Return bool
-    public static function transferir($input){
+    /**
+     * Efetua a transação dos valores entre as carteiras dos usuarios
+     *
+     * @param  array  $input
+     * @param  \App\Models\Transacoes
+     *
+     * @return bool
+     */
+    public static function transferir($input): bool
+    {
         $mokyAuth = "https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6";
 
         $response = Http::get($mokyAuth);
 
-        if($response['message'] == "Autorizado" && $response->successful()){
+        if($response['message'] == "Autorizado" && $response->successful())
+        {
             $payer = User::find($input['payer']);
 
             $walletPayer = $payer->carteiras()->where("tipo_carteira", '=', '1')->first();
@@ -52,21 +65,29 @@ class UserWalletCtr extends Controller
 
             return true;
         }
-        else {
-            return false;
-        }
+
+        return false;
     }
 
-    public function depositar(Request $request){
+    /**
+     * Realiza o depósito de um valor na carteira padrão do usuario
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function depositar(Request $request)
+    {
 
         $checkDecimal = UserWallet::checkDecimal($request->value);
-        if(!empty($checkDecimal)){
+        if(!empty($checkDecimal))
+        {
             return response()->json(["erro" => $checkDecimal], 422);
         }
 
         $payee = User::find(Auth::id())->carteiras()->where("tipo_carteira", '=', '1')->first();
         $payee->increment('saldo', $request->value);
 
-        return response(["sucesso" => "Deposito realizado com sucesso!"]);
+        return response()->json(["sucesso" => "Deposito realizado com sucesso!"]);
     }
 }

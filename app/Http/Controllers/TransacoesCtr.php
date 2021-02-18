@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transacoes;
-use App\Models\User;
-use App\Models\UserWallet;
+use App\Models\{Transacoes, User, UserWallet};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{Auth, DB, Validator};
 
 class TransacoesCtr extends Controller
 {
-    public function index(){
+    /**
+     * Retorna a lista das transações do usuario
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
         $userId = Auth::id();
 
         $transacoes = DB::table("transacoes as tra")
@@ -30,14 +32,21 @@ class TransacoesCtr extends Controller
         ->where("payee", $userId)
         ->orWhere("payer", $userId)->get();
 
-        foreach($transacoes as  $key => $col){
+        foreach($transacoes as  $key => $col)
+        {
             $col->situacao = Transacoes::getSituacao($col->situacao);
         }
 
         return response()->json($transacoes);
     }
 
-    public function destinatarios(){
+    /**
+     * Retorna lista de destinatários
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destinatarios()
+    {
         $user = Auth::user();
 
         if($user->tipo_conta === "1"){
@@ -47,11 +56,18 @@ class TransacoesCtr extends Controller
             $destinatarios = [];
         }
 
-        return response($destinatarios);
+        return response()->json($destinatarios);
     }
 
-    public function novaTransacao(Request $request){
-
+    /**
+     * Cria uma nova transação e transfere o valor em caso de sucesso
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function novaTransacao(Request $request)
+    {
         $messages = [
             "payer.required" => "Impossível continuar a transferência, efetue login novamente.",
             "payee.required" => "Informe o destinatário do valor a ser transferido.",
@@ -88,6 +104,7 @@ class TransacoesCtr extends Controller
                     if($value < 0.5){
                         $fail("Valor mínimo por transação R$ 0,5 ");
                     }
+
                     $checkDecimal = UserWallet::checkDecimal($value);
                     if(!empty($checkDecimal)){
                         $fail($checkDecimal);
@@ -100,7 +117,8 @@ class TransacoesCtr extends Controller
 
         $firstErro = $validator->errors()->first();
 
-        if(!empty($firstErro)){
+        if(!empty($firstErro))
+        {
             return response()->json(["erro" => $firstErro], 422);
         }
 
@@ -120,13 +138,19 @@ class TransacoesCtr extends Controller
             "id_origem" => $novaTransacao
         ]);
 
-        if($transferir){
+        if($transferir)
+        {
             // Atualzia a transação em andamento, para Aprovada.
             $transacao = Transacoes::find($novaTransacao);
             $transacao->situacao = "2";
             $transacao->save();
 
-            return response()->json(["sucesso" => "Transação concluída, transferência aprovada!"], 200);
+            return response()->json(
+                [
+                    "sucesso" => "Transação concluída, transferência aprovada!"
+                ],
+                200
+            );
         }
         else {
             // Atualiza a transação para Não autorizada
@@ -139,10 +163,20 @@ class TransacoesCtr extends Controller
 
     }
 
-    public function estornar($idTransacao, Transacoes $transacoes){
+    /**
+     * Estorna um valor enviado a outro usuario
+     *
+     * @param  int  $request
+     * @param  \App\Models\Transacoes
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function estornar($idTransacao, Transacoes $transacoes)
+    {
         $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->first();
 
-        if(empty($transacao)){
+        if(empty($transacao))
+        {
             return response()->json(["erro" => "Transação não foi encontrada"], 422);
         }
 
@@ -156,7 +190,8 @@ class TransacoesCtr extends Controller
 
         $validator = Validator::make($dados, [
             "owner" => function($attr, $owner, $fail){
-                if(Auth::id() != $owner){ // Somente o usario que pagou pode estornar o valor.
+                // Somente o usario que pagou pode estornar o valor.
+                if(Auth::id() != $owner){
                     $fail("Você não está habilitado para pedir o estorno!");
                 }
             }
@@ -170,7 +205,8 @@ class TransacoesCtr extends Controller
 
         $transferir = UserWalletCtr::transferir($dados);
 
-        if($transferir){ // se autorizar, atualiza a transação para Estornado
+        // se autorizar, atualiza a transação para Estornado
+        if($transferir){
             $transacao->situacao = "3";
             $transacao->save();
 
@@ -182,7 +218,16 @@ class TransacoesCtr extends Controller
 
     }
 
-    public function devolver($idTransacao, Transacoes $transacoes){
+    /**
+     * Devolve um valor recebido por outro usuário
+     *
+     * @param  int  $idTransacao
+     * @param  \App\Models\Transacoes
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function devolver($idTransacao, Transacoes $transacoes)
+    {
         $transacao = $transacoes->where("id", $idTransacao)->where("situacao", "=", "2")->first();
 
         if(empty($transacao)){
@@ -198,7 +243,8 @@ class TransacoesCtr extends Controller
 
         $validator = Validator::make($dados, [
             "payer" => function($attr, $payer, $fail){
-                if(Auth::id() != $payer){ // Somente o usario que recebeu devolver o valor.
+                // Somente o usario que recebeu pode devolver o valor.
+                if(Auth::id() != $payer){
                     $fail("Você não pode devolver esta transação.");
                 }
                 if(Auth::user()['tipo_conta'] == 2){
@@ -215,7 +261,8 @@ class TransacoesCtr extends Controller
 
         $autorizado = UserWalletCtr::transferir($dados);
 
-        if($autorizado){
+        if($autorizado)
+        {
             $transacao->situacao = "4";
             $transacao->save();
 

@@ -9,12 +9,19 @@ use Illuminate\Support\Facades\Http;
 class NotificacoesCtr extends Controller
 {
 
-    public static function novaNotificacao($input = array()){
-
+    /**
+     * Registra o evento de acordo com o a origem e id da origem
+     *
+     * @param  array $input
+     * @return \App\Models\Notificacoes
+     */
+    public static function novaNotificacao(array $input): object
+    {
         $mokyNotify = "https://run.mocky.io/v3/b19f7b9f-9cbf-4fc6-ad22-dc30601aec04";
         $response = Http::get($mokyNotify);
 
-        if($response['message'] == "Enviado" && $response->successful()){
+        if($response['message'] == "Enviado" && $response->successful())
+        {
             event( new NovaTransacao($input['mensagem'], $input['payee']));
             $input['status'] = 2;
         }
